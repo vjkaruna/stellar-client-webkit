@@ -32,11 +32,12 @@ sc.controller('LoginCtrl', function($scope, $state) {
   };
 });
 
-sc.controller('RegistrationCtrl', function($scope, $state, API_LOCATION, bruteRequest, debounce, passwordStrengthComputations) {
+sc.controller('RegistrationCtrl', function($scope, $state, $sce, API_LOCATION, bruteRequest, debounce, passwordStrengthComputations) {
   $scope.username             = '';
   $scope.email                = '';
   $scope.password             = '';
   $scope.passwordConfirmation = '';
+  $scope.captchaHTML          = '';
 
   $scope.usernameAvailable    = null;
   $scope.passwordValid        = null;
@@ -45,6 +46,17 @@ sc.controller('RegistrationCtrl', function($scope, $state, API_LOCATION, bruteRe
   $scope.usernameErrors        = [];
   $scope.passwordErrors        = [];
   $scope.passwordConfirmErrors = [];
+
+  $('#captcha').attr('src', API_LOCATION + '/captcha');
+
+  var sckey, scvalue, scvalue2;
+  window.addEventListener('message', captchaResponse, false);
+  function captchaResponse(event){
+    var data = JSON.parse(event.data);
+    sckey = data.sckey;
+    scvalue = data.scvalue;
+    scvalue2 = data.scvalue2;
+  }
 
   var requestUsernameStatus = new bruteRequest({
     url: API_LOCATION + '/validname',
@@ -189,7 +201,10 @@ sc.controller('RegistrationCtrl', function($scope, $state, API_LOCATION, bruteRe
       var data = {
         username: $scope.username,
         email: $scope.email,
-        publicKey: publicKey
+        publicKey: publicKey,
+        sckey: sckey,
+        scvalue: scvalue,
+        scvalue2: scvalue2
       };
 
       requestRegistration.send(data);

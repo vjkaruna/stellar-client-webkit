@@ -76,3 +76,9 @@ $input-border-focus-color: #66afe9;
     border-right: 1px solid $input-border-color;
   }
 }
+
+#captcha {
+  height: 165px;
+  width: 425px;
+  border: none;
+}
