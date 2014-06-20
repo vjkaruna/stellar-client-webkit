@@ -1,7 +1,8 @@
 // bruteRequest() wrap $.ajax to automatically retry when express-brute rate limits a request.
-var bruteRequest = angular.module('bruteRequest', [])
-  .factory('bruteRequest', function($timeout){
+var bruteRequest = angular.module('bruteRequest', []);
 
+
+bruteRequest.factory('bruteRequest', function($timeout){
     var bruteRequest = function(options){
       this.options = options;
       this.pendingRequest = null;
@@ -39,3 +40,33 @@ var bruteRequest = angular.module('bruteRequest', [])
     return bruteRequest;
   })
 ;
+
+
+bruteRequest.config(function($httpProvider) {
+  $httpProvider.interceptors.push(function($q, $timeout, $injector) {
+    var interceptor = {};
+
+    interceptor.responseError = function(rejection) {
+      console.log(rejection);
+      // if we're getting the brute rejection resposne
+      if (rejection.status == 429) {
+        var $http              = $injector.get('$http');
+        var body               = rejection.data;
+        var suggestedRetryTime = new Date(body.error.nextValidRequestDate).getTime();
+        var waitTime           = suggestedRetryTime - Date.now();
+        console.log("waiting for " + waitTime);
+        var nextAttempt        = $timeout(function(){
+                                   console.log("next attempt")
+                                   return $http(rejection.config);
+                                 }, waitTime);
+
+
+        return nextAttempt;
+      } else {
+        return $q.reject(rejection);
+      }
+    };
+
+    return interceptor;
+  });
+});
