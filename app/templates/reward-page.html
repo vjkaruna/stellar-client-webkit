@@ -36,7 +36,7 @@
             <div class="info">
                 You did it.
             </div>
-            <button class="stellar-button btn btn-default" ng-click="closeReward()">Unlock next ... ?</button>
+            <button class="stellar-button btn btn-default" ng-click="toggleReward(reward.index + 1, rewards[reward.index + 1].status)">{{ rewards[reward.index + 1].title }}</button>
         </div>
     </div>
 
