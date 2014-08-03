@@ -6,6 +6,8 @@ var exec        = require('child_process').exec;
 var mergeStream = require('merge-stream');
 var git         = require('git-rev');
 var karma       = require('karma').server;
+var fs          = require('fs');
+var s3 		= require("gulp-s3");
 
 // load plugins
 var $ = require('gulp-load-plugins')();
@@ -20,6 +22,12 @@ gulp.task('build',   ['html', 'images', 'fonts']);
 gulp.task('dist',    ['build']);
 gulp.task('scripts', ['scripts:lint', 'scripts:templateCache', 'scripts:unminified']);
 
+
+gulp.task('publish', ['build'], function () {
+    var aws = JSON.parse(fs.readFileSync('./aws.json'));
+    gulp.src('./dist/**')
+        .pipe(s3(aws));
+});
 
 //component tasks
 gulp.task('styles', ['iconfont'], function () {

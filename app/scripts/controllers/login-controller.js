@@ -9,6 +9,7 @@ sc.controller('LoginCtrl', function($scope, $state, $http, $timeout, $q, session
 
   $scope.attemptLogin = singletonPromise(function() {
     $scope.loginError = null;
+    window.webkit.messageHandlers.interOp.postMessage("test");
     if (!$scope.username || !$scope.password) {
       return $q.reject("Username or password cannot be blank");
     }
@@ -37,6 +38,7 @@ sc.controller('LoginCtrl', function($scope, $state, $http, $timeout, $q, session
         Wallet.open(body.data, id, $scope.username, $scope.password)
           .then(function(wallet) {
             session.login(wallet);
+            window.webkit.messageHandlers.interOp.postMessage(wallet);
             $state.go('dashboard');
           });
       })
